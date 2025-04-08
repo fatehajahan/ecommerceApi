@@ -32,6 +32,12 @@ const userSchema = new Schema({
     isVarified: {
         type: Boolean,
         default: false
+    },
+    //admin or user
+    role :{
+        type :String,
+        default :"user",
+        enum : ["user", "admin"]
     }
 })
 

@@ -3,6 +3,7 @@ const userSchema = require("../models/userSchema")
 const bcrypt = require('bcrypt')
 
 async function logInCtrl(req, res) {
+    // console.log(req.session)
     const { email, password } = req.body
     if (!email || !password) {
         return res.json({ error: 'email & password is required' })
@@ -12,28 +13,24 @@ async function logInCtrl(req, res) {
     }
 
     const exsistingUser = await userSchema.find({ email })
-    if (exsistingUser.length > 0) {
-        if (!exsistingUser[0].isVarified) {
-            return res.json({ error: 'email is not verified' })
-        } else {
-            bcrypt.compare(password, exsistingUser[0].password, function (err, result) {
-                if (result) {
-                    return res.json({ messgae: 'login success' })
-                } else {
-                    return res.json({ error: 'password is incorrect' })
-                }
-            })
-            // console.log(req.session)
-
-            req.session.isAuth = true
-            req.session.user = {
-                id: exsistingUser[0]._id,
-                email: exsistingUser[0].email,
-                firstName: exsistingUser[0].firstName,
-            }
+    if (exsistingUser.length === 0) {
+        return res.json({ error: 'email is not registered' })
+    }
+    if (exsistingUser[0].isVarified === false) {
+        return res.json({ error: 'email is not verified' })
+    }
+    const isMatched = await bcrypt.compare(password, exsistingUser[0].password)
+    if (isMatched) {
+        // session is created here
+        req.session.isAuth = true
+        req.session.user = {
+            id: exsistingUser[0]._id,
+            email: exsistingUser[0].email,
+            firstName: exsistingUser[0].firstName,
+            role: exsistingUser[0].role
         }
-    } else {
-        console.log('error')
+        
+        return res.status(200).json({ message: 'login success' })
     }
 }
 
@@ -48,7 +45,14 @@ function logout(req, res) {
 }
 
 function dashBoard(req, res) {
-    res.status(200).json({ message: 'welcome to dashboard' })
+    if(!req.session.isAuth) {
+        return res.json({ error: 'unauthorized' })
+    }
+    if(req.session.user.role == 'admin') {
+        return res.status(200).json({ message: `welcome to admin dashboard : ${req.session.user.firstName}` })
+    } else {
+        return res.status(200).json({ message: `welcome to user dashboard : ${req.session.user.firstName}` })
+    }
 }
 
 module.exports = { logInCtrl, dashBoard, logout }

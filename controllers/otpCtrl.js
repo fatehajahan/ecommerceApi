@@ -5,7 +5,6 @@ async function otpCtrl(req, res) {
     const { email, otp } = req.body
 
     const user = await userSchema.findOne({ email })
-
     if (!user) {
         return res.status(400).json({ messgae: "user not found" })
     }
@@ -13,7 +12,7 @@ async function otpCtrl(req, res) {
     if (user.isVarified) {
         return res.json({ messgae: 'user is verified' })
     }
-    if (user.otp !== otp || user.expiredOtp < Date().now) {
+    if (user.otp !== otp || user.expiredOtp > Date.now()) {
         return res.status(400).json({ error: 'Invalid OTP' })
     }
 
@@ -40,10 +39,10 @@ async function resendOtpCtrl(req, res) {
         return res.json({ message: 'please provide your email.' })
     }
 
-    const user = await userSchema.find({ email })
+    // const user = await userSchema.find({ email })
     const otp = crypto.randomInt(10000, 99999).toString()
 
-    const otpExpiry = new Date(Date().now + 5 * 60 * 1000)
+    const otpExpiry = new Date(Date.now() + 1 * 60 * 1000)
 
     // user.otp = otp
     // user.expiredOtp = otpExpiry

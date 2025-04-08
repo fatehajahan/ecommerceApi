@@ -27,8 +27,8 @@ async function registrationCtrl(req, res) {
     }
 
     const otp = crypto.randomInt(10000, 99999).toString()
-
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000)
+    
     bcrypt.hash(password, 10, function (err, hash) {
         const users = new userSchema({
             firstName,

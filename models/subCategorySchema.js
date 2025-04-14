@@ -12,8 +12,14 @@ const subCategorySchema = new Schema({
         require: true,
         trim: true
     }, 
+    products: [{
+        // type: Schema.Types.ObjectId,(eta tokhn use korte hobe jokhn _id array te dibo.)
+        type: String,
+        ref: "Product",
+    }],
     category :[{
-        type: Schema.Types.ObjectId,
+        // type: Schema.Types.ObjectId,(eta tokhn use korte hobe jokhn _id array te dibo.)
+        type: String,
         ref: "CategoryList",
         require: true
     }],

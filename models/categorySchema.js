@@ -13,9 +13,10 @@ const categorySchema = new Schema({
         trim: true
     },
     subCategory: [{
-        type: Schema.Types.ObjectId,
+        // type: Schema.Types.ObjectId, (eta tokhn use korte hobe jokhn _id array te dibo.)
+        type: String,
         ref: "SubcategoryList"
-    }]// karon eta subcategory er array hobe
+    }]// karon eta subcategory er array hobe,
 })
 
 module.exports = mongoose.model("CategoryList", categorySchema)

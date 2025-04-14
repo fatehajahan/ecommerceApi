@@ -12,15 +12,14 @@ async function subCategoryCtrl(req, res) {
     const subCategory = new subCategorySchema({
         subCategoryName,
         subCategoryDescription,
-        category: foundCategory._id
+        category: foundCategory.categoryName
     })
     subCategory.save();
 
     await categorySchema.findOneAndUpdate(
         { categoryName: category },
-        // {$set: {subCategory: subCategory._id}},
         {
-            $push : {subCategory : subCategory._id}
+            $push: { subCategory: subCategory.subCategoryName }
         },
         { new: true }
     )
@@ -31,4 +30,65 @@ async function subCategoryCtrl(req, res) {
         data: subCategory
     })
 }
-module.exports = subCategoryCtrl 
+
+async function getAllSubCategoryCtrl(req, res) {
+    try {
+        const allSubCategory = await subCategorySchema.find({})
+        res.status(200).json({
+            message: "get all SubCategory",
+            statues: "success",
+            data: allSubCategory
+        })
+    } catch (error) {
+        res.status(400).json({ error: "internal server error", statues: "failed" })
+    }
+}
+
+async function getSingleSubCategoryCtrl(req, res) {
+    // console.log(req.params)
+    const { id } = req.params
+    const getSingleSubCategory = await subCategorySchema.findOne({ _id: id })
+    // console.log(getSingleCategory)
+    res.status(200).json({
+        message: "get single category",
+        statues: "success",
+        data: getSingleSubCategory
+    })
+}
+
+async function updateSingleSubCategoryCtrl(req, res) {
+    try {
+        const { id } = req.params
+        console.log(id)
+        const { subCategoryName, subCategoryDescription } = req.body
+        const updateSubCategory = await subCategorySchema.findById(id)
+        if (subCategoryName) {
+            updateSubCategory.subCategoryName = subCategoryName;
+        }
+        if (subCategoryDescription) {
+            updateSubCategory.subCategoryDescription = subCategoryDescription;
+        }
+
+        await updateSubCategory.save()
+        res.status(200).json({ message: "subcategory updated successfully" })
+    } catch (error) {
+        res.status(401).json({ error: "internal server error", status: "failed" })
+    }
+}
+
+async function deleteSubCategoryCtrl(req, res) {
+    try {
+        const { id } = req.params
+        const deleteSubCategory = await subCategorySchema.findByIdAndDelete(id)
+        res.status(200).json({
+            message: "SubCategory deleted Sucessfully done",
+            data: deleteSubCategory
+        })
+    } catch (error) {
+        res.status(200).json({
+            message: "Internal server Error",
+            status: "error"
+        })
+    }
+}
+module.exports = { subCategoryCtrl, getAllSubCategoryCtrl, getSingleSubCategoryCtrl, updateSingleSubCategoryCtrl, deleteSubCategoryCtrl } 

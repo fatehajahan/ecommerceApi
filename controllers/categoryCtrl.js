@@ -1,5 +1,6 @@
 const { get } = require("mongoose")
 const categorySchema = require("../models/categorySchema")
+const productSchema = require("../models/productSchema")
 
 async function categoryCtrl(req, res) {
     console.log(req.body)
@@ -23,23 +24,58 @@ async function categoryCtrl(req, res) {
     })
 }
 
+//async function getAllCategoryCtrl(req, res) {
+//     try {
+//         const allCategory = await categorySchema.find({})
+//         res.status(200).json({
+//             message: "get all category",
+//             statues: "success",
+//             data: allCategory
+//         })
+//     } catch (error) {
+//         res.status(400).json({ error: "internal server error", statues: "failed" })
+//     }
+// }
 async function getAllCategoryCtrl(req, res) {
     try {
-        const allCategory = await categorySchema.find({})
+        const allCategory = await categorySchema.find({});
+
+        const enrichedCategories = await Promise.all(
+            allCategory.map(async (category) => {
+                const subCatsWithProducts = await Promise.all(
+                    category.subCategory.map(async (subCatName) => {
+                        const products = await productSchema.find({ subCategory: subCatName });
+                        return {
+                            name: subCatName,
+                            products,
+                        };
+                    })
+                );
+
+                return {
+                    _id: category._id,
+                    categoryName: category.categoryName,
+                    categoryDescription: category.categoryDescription,
+                    subCategory: subCatsWithProducts,
+                };
+            })
+        );
+
         res.status(200).json({
-            message: "get all category",
+            message: "get all category with products",
             statues: "success",
-            data: allCategory
-        })
+            data: enrichedCategories,
+        });
     } catch (error) {
-        res.status(400).json({ error: "internal server error", statues: "failed" })
+        console.error(error);
+        res.status(400).json({ error: "internal server error", statues: "failed" });
     }
 }
 
 async function getSingleCategoryCtrl(req, res) {
     // console.log(req.params)
     const { id } = req.params
-    const getSingleCategory = await categorySchema.findOne({_id: id })
+    const getSingleCategory = await categorySchema.findOne({ _id: id })
     // console.log(getSingleCategory)
     res.status(200).json({
         message: "get single category",
@@ -48,4 +84,44 @@ async function getSingleCategoryCtrl(req, res) {
     })
 }
 
-module.exports = { categoryCtrl, getAllCategoryCtrl, getSingleCategoryCtrl }
+async function updateSingleCategoryCtrl(req, res) {
+    try {
+        const { id } = req.params
+        console.log(id)
+        const { categoryName, categoryDescription } = req.body
+        const updateCategory = await categorySchema.findById(id)
+        if (categoryName) {
+            updateCategory.categoryName = categoryName;
+        }
+        if (categoryDescription) {
+            updateCategory.categoryDescription = categoryDescription;
+        }
+
+        await updateCategory.save()
+        res.status(200).json({ message: "category updated successfully" })
+    } catch (error) {
+        res.status(401).json({ error: "internal server error", status: "failed" })
+    }
+}
+
+async function deleteCategoryCtrl(req, res) {
+    try {
+        const { id } = req.params
+        const deleteCategory = await categorySchema.findByIdAndDelete(id)
+        res.status(200).json({
+            message: "Category deleted Sucessfully done",
+            data: deleteCategory
+        })
+    } catch (error) {
+        res.status(200).json({
+            message: "Internal server Error",
+            status: "error"
+        })
+    }
+}
+
+module.exports = { categoryCtrl, getAllCategoryCtrl, getSingleCategoryCtrl, updateSingleCategoryCtrl, deleteCategoryCtrl }
+
+//subcategory shob category r moto complete korte hobe
+//controller e product upload korar shob code, shema ay product er schema ready kore ante hobe. date push kore next class a niye jaite hobe
+//product - name, price, iamge

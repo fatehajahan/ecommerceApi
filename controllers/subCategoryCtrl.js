@@ -78,17 +78,35 @@ async function updateSingleSubCategoryCtrl(req, res) {
 
 async function deleteSubCategoryCtrl(req, res) {
     try {
-        const { id } = req.params
-        const deleteSubCategory = await subCategorySchema.findByIdAndDelete(id)
+        const { id } = req.params;
+
+        // First, find and delete the subcategory
+        const deletedSubCategory = await subCategorySchema.findByIdAndDelete(id);
+
+        if (!deletedSubCategory) {
+            return res.status(404).json({
+                message: "SubCategory not found",
+                status: "error"
+            });
+        }
+
+        // Then, remove its name from the parent category's subCategory array
+        await categorySchema.updateOne(
+            { subCategory: deletedSubCategory.name },
+            { $pull: { subCategory: deletedSubCategory.name } }
+        );
+
         res.status(200).json({
-            message: "SubCategory deleted Sucessfully done",
-            data: deleteSubCategory
-        })
+            message: "SubCategory deleted successfully",
+            data: deletedSubCategory
+        });
     } catch (error) {
-        res.status(200).json({
-            message: "Internal server Error",
+        console.error(error);
+        res.status(500).json({
+            message: "Internal server error",
             status: "error"
-        })
+        });
     }
 }
+
 module.exports = { subCategoryCtrl, getAllSubCategoryCtrl, getSingleSubCategoryCtrl, updateSingleSubCategoryCtrl, deleteSubCategoryCtrl } 

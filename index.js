@@ -24,6 +24,7 @@ app.use(
         store : store
     })
 )
+app.use('/api/v1/upload', express.static('upload'))
 
 app.use(route)
 

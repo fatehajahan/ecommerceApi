@@ -2,21 +2,36 @@ const mongoose = require("mongoose")
 const { Schema } = mongoose
 
 const productSchema = new Schema({
-    productName: {
+    name: {
         type: String,
-        require: true,
-        trim: true
+        required: true,
+        trim: true,
+    },
+    description: {
+        type: String,
+        required: true,
     },
     price: {
-        type: String,
-        require: true,
+        type: Number,
+        required: true
     },
-    subCategory: [{
-        // type: Schema.Types.ObjectId,(eta tokhn use korte hobe jokhn _id array te dibo.)
+    flavour: {
+        type: String
+    },
+    image: {
+        type: String
+    },
+    category: {
+        // type: Schema.Types.ObjectId,
+        type: String,
+        ref: "CategoryList",
+        required: true
+    },
+    subCategory: {
+        // type: Schema.Types.ObjectId,
         type: String,
         ref: "SubcategoryList",
-        require: true
-    }],
-})
+    },
+}, { timestamps: true })
 
 module.exports = mongoose.model("Product", productSchema)

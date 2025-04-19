@@ -32,6 +32,10 @@ const productSchema = new Schema({
         type: String,
         ref: "SubcategoryList",
     },
+    discount: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: true })
 
 module.exports = mongoose.model("Product", productSchema)

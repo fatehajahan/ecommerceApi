@@ -82,41 +82,74 @@ async function getSingleCategoryCtrl(req, res) {
     })
 }
 
+// async function updateSingleCategoryCtrl(req, res) {
+//     try {
+//         const { id } = req.params
+//         console.log(id)
+//         const { categoryName, categoryDescription } = req.body
+//         const updateCategory = await categorySchema.findByIdAndUpdate(id)
+//         if (categoryName) {
+//             updateCategory.categoryName = categoryName;
+//         }
+//         if (categoryDescription) {
+//             updateCategory.categoryDescription = categoryDescription;
+//         }
+
+//         await updateCategory.save()
+//         res.status(200).json({ message: "category updated successfully" })
+//     } catch (error) {
+//         res.status(401).json({ error: "internal server error", status: "failed" })
+//     }
+// }
+
 async function updateSingleCategoryCtrl(req, res) {
     try {
-        const { id } = req.params
-        console.log(id)
-        const { categoryName, categoryDescription } = req.body
-        const updateCategory = await categorySchema.findByIdAndUpdate(id)
-        if (categoryName) {
-            updateCategory.categoryName = categoryName;
-        }
-        if (categoryDescription) {
-            updateCategory.categoryDescription = categoryDescription;
+        const { id } = req.params;
+        const { categoryName, categoryDescription } = req.body;
+
+        const updateData = {};
+        if (categoryName) updateData.categoryName = categoryName;
+        if (categoryDescription) updateData.categoryDescription = categoryDescription;
+
+        const updatedCategory = await categorySchema.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
+
+        if (!updatedCategory) {
+            return res.status(404).json({ message: "Category not found" });
         }
 
-        await updateCategory.save()
-        res.status(200).json({ message: "category updated successfully" })
+        res.status(200).json({ message: "Category updated successfully", data: updatedCategory });
     } catch (error) {
-        res.status(401).json({ error: "internal server error", status: "failed" })
+        console.error(error);
+        res.status(500).json({ error: "Internal server error", status: "failed" });
     }
 }
 
 async function deleteCategoryCtrl(req, res) {
     try {
-        const { id } = req.params
-        const deleteCategory = await categorySchema.findByIdAndDelete(id)
+        const { id } = req.params;
+        const deletedCategory = await categorySchema.findByIdAndDelete(id);
+
+        if (!deletedCategory) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
         res.status(200).json({
-            message: "Category deleted Sucessfully done",
-            data: deleteCategory
-        })
+            message: "Category deleted successfully",
+            data: deletedCategory
+        });
     } catch (error) {
-        res.status(200).json({
-            message: "Internal server Error",
+        console.error(error);
+        res.status(500).json({
+            message: "Internal server error",
             status: "error"
-        })
+        });
     }
 }
+
 
 module.exports = { categoryCtrl, getAllCategoryCtrl, getSingleCategoryCtrl, updateSingleCategoryCtrl, deleteCategoryCtrl }
 

@@ -4,20 +4,19 @@ const productSchema = require("../models/productSchema")
 
 async function productCtrl(req, res) {
     try {
-        const { name, description, price, flavour, image, category, subCategory, discount } = req.body
-        const foundCategory = await categorySchema.findOne({ categoryName: category })
+        const { name, description, price, fragrance, image, category, subCategory, discount } = req.body
+        const foundCategory = await categorySchema.findById(category)
+        console.log("Incoming data:", req.body)
+        // const imgPath = req.file.path
+        // const imgUrl = await uploadImage(imgPath)
 
-        // console.log(req.file)
-        const imgPath = req.file.path
-        // console.log(imgPath)
-        const imgUrl = await uploadImage(imgPath)
-        // console.log(imgUrl, 'sxdcsd')
-
-        if (!name || !price || !description || !flavour) {
+        if (!name || !description || !price || !fragrance || !foundCategory) {
             return res.json({ message: "All fields are required" })
         }
         const product = new productSchema({
-            name, description, price, flavour, image: imgUrl.secure_url, subCategory, category: foundCategory.categoryName, discount
+            name, description, price, fragrance,
+            //  image: imgUrl.secure_url, 
+            subCategory, category: foundCategory.categoryName, discount
         })
         await product.save()
         await categorySchema.findOneAndUpdate(

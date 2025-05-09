@@ -9,13 +9,13 @@ const productSchema = new Schema({
     },
     description: {
         type: String,
-        required: true,
+        // required: true,
     },
     price: {
-        type: Number,
-        required: true
+        type: String,
+        // required: true
     },
-    flavour: {
+    fragrance: {
         type: String
     },
     image: {
@@ -25,7 +25,7 @@ const productSchema = new Schema({
         // type: Schema.Types.ObjectId,
         type: String,
         ref: "CategoryList",
-        required: true
+        // required: true
     },
     subCategory: {
         // type: Schema.Types.ObjectId,

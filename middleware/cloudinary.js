@@ -9,6 +9,7 @@ cloudinary.config({
 
 
 const uploadImage = async (imgUrlPath) => {
+    
     try {
         if(!imgUrlPath) return null
         const result = await cloudinary.uploader.upload(imgUrlPath)

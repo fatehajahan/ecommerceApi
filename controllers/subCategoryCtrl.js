@@ -3,7 +3,7 @@ const subCategorySchema = require("../models/subCategorySchema")
 
 async function subCategoryCtrl(req, res) {
     const { subCategoryName, subCategoryDescription, category } = req.body
-    const foundCategory = await categorySchema.findOne({ categoryName: category })
+    const foundCategory = await categorySchema.findOne({ categoryName: category })  
 
     if (!foundCategory) {
         return res.status(400).json({ error: "This category does not exist", statues: "failed" })
